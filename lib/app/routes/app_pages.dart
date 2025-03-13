@@ -28,7 +28,7 @@ class AppPages {
       name: AppRoutes.SPLASH,
       page: () => SplashView(),
       binding: SplashBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
     GetPage(
@@ -36,12 +36,12 @@ class AppPages {
       page: () => OnboardingView(),
       binding: OnboardingBinding(),
     ),
-    
+
     GetPage(
       name: AppRoutes.HOME,
       page: () => HomeView(),
       binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -50,7 +50,7 @@ class AppPages {
       page: () => LoginView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -58,7 +58,7 @@ class AppPages {
       name: AppRoutes.SIGNUP,
       page: () => SignupView(),
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -66,7 +66,7 @@ class AppPages {
       name: AppRoutes.SUCCESS_REG,
       page: () => SuccessRegView(),
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
     GetPage(
@@ -74,7 +74,7 @@ class AppPages {
       page: () => PassResetView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
     GetPage(
@@ -82,7 +82,7 @@ class AppPages {
       page: () => ForgotPassView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
     GetPage(
@@ -90,7 +90,7 @@ class AppPages {
       page: () => PassResetOtpView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -99,7 +99,7 @@ class AppPages {
       page: () => PassResetSuccessView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -108,7 +108,7 @@ class AppPages {
       page: () => WelcomePageView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -117,7 +117,7 @@ class AppPages {
       page: () => DashboardView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -126,7 +126,7 @@ class AppPages {
       page: () => InvitationView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -135,7 +135,7 @@ class AppPages {
       page: () => InvitationDetails(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
 
@@ -144,37 +144,34 @@ class AppPages {
       page: () => CartView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
-
 
     GetPage(
       name: AppRoutes.USER_EVENTS,
       page: () => EventsView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
-
 
     GetPage(
       name: AppRoutes.USER_EVENTS_details,
       page: () => EventDetailsView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
-
 
     GetPage(
       name: AppRoutes.USER_EVENTS_CREATE,
       page: () => CreateEventView(),
 
       // binding: HomeBinding(),
-      transition: Transition.fadeIn, // Smooth fade-in transition
+      transition: Transition.cupertino, // Smooth fade-in transition
       transitionDuration: Duration(milliseconds: 800),
     ),
   ];

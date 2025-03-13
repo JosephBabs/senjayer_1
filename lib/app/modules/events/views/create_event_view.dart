@@ -323,7 +323,7 @@ class _CreateEventPageState extends State<CreateEventView> {
       "address_longitude": longitude ?? 0,
       "address_latitude": latitude ?? 0,
       "image_url": imageUrl ?? "",
-      "category_id": selectedCategory ?? 0,
+      "category_id": selectedCategory ?? 1,
       "private": 0,
       "user_id": userId,
       "start_date": startDate?.toIso8601String() ?? "",
@@ -565,6 +565,7 @@ class _CreateEventPageState extends State<CreateEventView> {
                 child: DropdownButton<int>(
                   value: selectedCategoryId,
                   onChanged: (int? newCategoryId) {
+                    print(selectedCategoryId);
                     setState(() {
                       selectedCategoryId = newCategoryId;
                     });
