@@ -10,6 +10,8 @@ class SuccessRegView extends StatelessWidget {
   final phone_controller = TextEditingController();
   final password_controller = TextEditingController();
 
+  
+  final Map<String, dynamic> user = Get.arguments;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +41,7 @@ class SuccessRegView extends StatelessWidget {
               BlackButton(
                 text: "Vos Invitations",
                 onPressed: () {
-                  Get.back();
+                  Get.toNamed("/dashboard");
                 },
               ),
               const SizedBox(height: 20),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 
@@ -30,10 +31,44 @@ class ApiService {
           "user": data["user"],
         };
       } else {
-        return {"success": false, "message": response.data["message"]};
+        print("error $response");
+        return {
+          "success": false,
+          "message": response.data["message"],
+          "errors": response,
+        };
       }
     } catch (e) {
-      return {"success": false, "message": "Login failed: $e"};
+      // Handle DioException specifically
+      if (e is DioException) {
+        // Capture the error response if available
+        if (e.response != null) {
+          // Log response data for debugging
+          print("Dio Exception Response: ${e.response?.data}");
+
+          // Return the response data along with error status
+          return {
+            "success": false,
+            "message":
+                "login failed with status code ${e.response?.statusCode}",
+            "error_details":
+                e.response?.data ?? "No additional error details available",
+          };
+        } else {
+          // If no response is available (e.g., connection error), log that
+          return {
+            "success": false,
+            "message": "Registration failed with an error: $e",
+            "error_details": e.toString(),
+          };
+        }
+      } else {
+        // Fallback for any other types of errors
+        return {
+          "success": false,
+          "message": "Registration failed with an unknown error: $e",
+        };
+      }
     }
   }
 
@@ -46,28 +81,80 @@ class ApiService {
     String passwordConfirmation,
   ) async {
     try {
+      // Print data before sending
+      print(
+        'Data sent: $firstName, $lastName, $phone, $email, $password, $passwordConfirmation',
+      );
+
+      // Send the POST request
       Response response = await _dio.post(
         ApiRoutes.registerUrl,
-        queryParameters: {
+        data: {
           "firstName": firstName,
           "lastName": lastName,
           "phone": phone,
           "email": email,
+          "role_id": "1", // Add other fields if necessary
           "password": password,
           "password_confirmation": passwordConfirmation,
         },
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+          }, // Ensure the content type is set to application/json
+        ),
       );
 
-      if (response.statusCode == 201) {
-        return {"success": true, "message": "Registration successful"};
+      // Log response status and body for debugging
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.data}");
+
+      // Check the status code and return appropriate result
+      if (response.statusCode == 200) {
+        return {
+          "success": true,
+          "message": "Registration successful",
+          "data": response.data,
+        };
       } else {
         return {
           "success": false,
-          "message": response.data["message"] ?? "Unknown error",
+          "message":
+              "Error ${response.statusCode}: ${response.data['message'] ?? 'Unknown error'}",
+          "data": response.data,
         };
       }
     } catch (e) {
-      return {"success": false, "message": "Registration failed: $e"};
+      // Handle DioException specifically
+      if (e is DioException) {
+        // Capture the error response if available
+        if (e.response != null) {
+          // Log response data for debugging
+          print("Dio Exception Response: ${e.response?.data}");
+
+          // Return the response data along with error status
+          return {
+            "success": false,
+            "message":
+                "Registration failed with status code ${e.response?.statusCode}",
+            "error_details":
+                e.response?.data ?? "No additional error details available",
+          };
+        } else {
+          // If no response is available (e.g., connection error), log that
+          return {
+            "success": false,
+            "message": "Registration failed with an error: $e",
+            "error_details": e.toString(),
+          };
+        }
+      } else {
+        // Fallback for any other types of errors
+        return {
+          "success": false,
+          "message": "Registration failed with an unknown error: $e",
+        };
+      }
     }
   }
 
@@ -91,7 +178,7 @@ class ApiService {
     return null;
   }
 
-Future<Map<String, dynamic>?> getEventsData() async {
+  Future<Map<String, dynamic>?> getEventsData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
     // print("Fetching events from: ${ApiRoutes.getEventsDetails}");
@@ -122,8 +209,7 @@ Future<Map<String, dynamic>?> getEventsData() async {
     }
   }
 
-
-Future<Map<String, dynamic>?> getUsersEventsData() async {
+  Future<Map<String, dynamic>?> getUsersEventsData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
     // print("Fetching events from: ${ApiRoutes.getEventsDetails}");
@@ -154,8 +240,138 @@ Future<Map<String, dynamic>?> getUsersEventsData() async {
     }
   }
 
+  Future<Map<String, dynamic>?> getEventsCategories() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("token");
+    // print("Fetching events from: ${ApiRoutes.getEventsDetails}");
 
+    try {
+      Response response = await _dio.get(
+        ApiRoutes.getCategories,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
+      // print("API Response: ${response.data}");
+
+      if (response.statusCode == 200) {
+        return {
+          "success": true,
+          "message": "Events retrieved successfully",
+          "categories": response.data,
+        };
+      } else {
+        return {
+          "success": false,
+          "message": response.data["message"] ?? "Unknown error",
+        };
+      }
+    } catch (e) {
+      print("Error: $e"); // Debugging error
+      return {"success": false, "message": "Failed to retrieve events: $e"};
+    }
   }
 
+  Future<Map<String, dynamic>?> createEvent({
+    required String name,
+    required String description,
+    required String eventAddress,
+    required double addressLongitude,
+    required double addressLatitude,
+    required File imageUrl,
+    required int categoryId,
+    required int private,
+    required int userId,
+    required String startDate,
+    required String endDate,
+    required int nbPlace,
+    required String startTicket,
+    required String endTicket,
+    required int status,
+    required List<String> guest,
+  }) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("token");
 
+    try {
+      // Debugging: Print data before sending
+      print('Creating Event with data: $name, $description, $eventAddress');
+
+      String fileName = imageUrl.path.split('/').last;
+      MultipartFile multipartFile = await MultipartFile.fromFile(
+        imageUrl.path,
+        filename: fileName,
+      );
+      // Send the POST request
+      Response response = await _dio.post(
+        ApiRoutes.createEvent, // Replace with your actual API endpoint
+        data: {
+          "name": name,
+          "description": description,
+          "event_address": eventAddress,
+          "address_longitude": addressLongitude,
+          "address_latitude": addressLatitude,
+          "image_url": multipartFile,
+          "category_id": categoryId,
+          "private": private,
+          "user_id": userId,
+          "start_date": startDate,
+          "end_date": endDate,
+          "nb_place": nbPlace,
+          "start_ticket": startTicket,
+          "end_ticket": endTicket,
+          "status": status,
+          "guest": guest,
+        },
+        options: Options(
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      // Log response for debugging
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.data}");
+
+      // Check the status code
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return {
+          "success": true,
+          "message": "Event created successfully",
+          "data": response.data,
+        };
+      } else {
+        return {
+          "success": false,
+          "message":
+              "Error ${response.statusCode}: ${response.data['message'] ?? 'Unknown error'}",
+          "data": response.data,
+        };
+      }
+    } catch (e) {
+      // Handle DioException specifically
+      if (e is DioException) {
+        // Log response if available
+        if (e.response != null) {
+          print("Dio Exception Response: ${e.response?.data}");
+
+          return {
+            "success": false,
+            "message":
+                "Event creation failed with status code ${e.response?.statusCode}",
+            "error_details": e.response?.data ?? "No additional details",
+          };
+        } else {
+          return {
+            "success": false,
+            "message": "Event creation failed: $e",
+            "error_details": e.toString(),
+          };
+        }
+      } else {
+        return {"success": false, "message": "An unknown error occurred: $e"};
+      }
+    }
+  }
+}

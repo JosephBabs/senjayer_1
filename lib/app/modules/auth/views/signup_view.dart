@@ -2,13 +2,107 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:senjayer/api/api_services.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 
-class SignupView extends StatelessWidget {
-  final email_controller = TextEditingController();
-  final phone_controller = TextEditingController();
-  final password_controller = TextEditingController();
+class SignupView extends StatefulWidget {
+  @override
+  _SignupViewState createState() => _SignupViewState();
+}
+
+class _SignupViewState extends State<SignupView> {
+  // Form Controllers
+  TextEditingController emailController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController firstNameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  // Password Validation
+  var passwordValid = false.obs;
+  var containsNumber = false.obs;
+  var containsLetter = false.obs;
+  var minLength = false.obs;
+
+  bool isLengthValid = false;
+  bool hasNumber = false;
+  bool hasLetter = false;
+  bool passwordsMatch = false;
+
+  // final RegisterController controller = Get.put(RegisterController());
+  // void validatePassword(String password) {
+  //   // print(password);
+  //   minLength.value = password.length >= 6;
+  //   containsNumber.value = password.contains(RegExp(r'[0-9]'));
+  //   containsLetter.value = password.contains(RegExp(r'[A-Za-z]'));
+  //   passwordValid.value =
+  //       minLength.value && containsNumber.value && containsLetter.value;
+  // }
+
+  void validatePassword(String password) {
+    setState(() {
+      isLengthValid = password.length >= 6;
+      hasNumber = RegExp(r'[0-9]').hasMatch(password);
+      hasLetter = RegExp(r'[A-Za-z]').hasMatch(password);
+    });
+  }
+
+  void validateMatchPassword() {
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
+
+    setState(() {
+      isLengthValid = password.length >= 6;
+      hasNumber = RegExp(r'[0-9]').hasMatch(password);
+      hasLetter = RegExp(r'[A-Za-z]').hasMatch(password);
+      passwordsMatch = password == confirmPassword;
+    });
+  }
+
+  void _handleRegister(
+    BuildContext context,
+    String firstName,
+    String lastName,
+    String phoneNumber,
+    String email,
+    String password,
+    String confirmPass,
+  ) async {
+    ApiService apiService = ApiService();
+    var result = await apiService.register(
+      firstName,
+      lastName,
+      phoneNumber,
+      email,
+      password,
+      confirmPass,
+    );
+    // var result = await apiService.login("user@example.com", "password123");
+
+    if (result["success"]) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Inscription réussi!, ${result['data']["user"]["firstName"]} ${result['data']["user"]["lastName"]}.",
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Navigate to Dashboard
+      // Get.toNamed("/dashboard");
+      Get.toNamed("/succes_reg");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Erreur!, ${result["error_details"]["errors"]}."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      print("Signup failed: ${result["error_details"]["errors"]}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +121,23 @@ class SignupView extends StatelessWidget {
               const SizedBox(height: 20),
               // Email Input
               CustomTextField(
+                labelText: 'Nom',
+                controller: lastNameController,
+                inputType: TextInputType.text,
+                hintText: "Joe",
+              ),
+
+              const SizedBox(height: 16),
+              CustomTextField(
+                labelText: 'Prénom',
+                controller: firstNameController,
+                inputType: TextInputType.text,
+                hintText: "Damie",
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
                 labelText: 'Email',
-                controller: email_controller,
+                controller: emailController,
                 inputType: TextInputType.emailAddress,
                 hintText: "votre@mail.com",
               ),
@@ -37,7 +146,7 @@ class SignupView extends StatelessWidget {
               // Password Input
               CustomTextField(
                 labelText: 'Numéro de téléphone',
-                controller: phone_controller,
+                controller: phoneController,
                 inputType: TextInputType.phone,
                 hintText: "+229 01 XX XX XX",
               ),
@@ -46,24 +155,65 @@ class SignupView extends StatelessWidget {
 
               CustomTextField(
                 labelText: 'Mot de passe',
-                controller: password_controller,
+                controller: passwordController,
                 hintText: "Votre mot de passe",
                 isPassword: true,
+                onChange: (value) {
+                  // print(value);
+                  validatePassword(value);
+                  validateMatchPassword();
+                },
               ),
 
+              const SizedBox(height: 16),
+              CustomTextField(
+                labelText: 'Confirmez Mot de passe',
+                controller: confirmPasswordController,
+                hintText: "confirmez votre mot de passe",
+                isPassword: true,
+                onChange: (value) {
+                  // validateMatchPassword();
+                  validatePassword(value);
+                  validateMatchPassword();
+                },
+              ),
+
+              Row(
+                children: [
+                  Icon(
+                    passwordsMatch ? Icons.check_circle : Icons.cancel,
+                    color: passwordsMatch ? Colors.green : Colors.red,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    passwordsMatch
+                        ? 'Les mots de passe correspondent'
+                        : 'Les mots de passe ne correspondent pas',
+                    style: TextStyle(
+                      color: passwordsMatch ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               // Password Requirements
               Center(child: Text('Votre mot de passe doit contenir')),
               Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green),
+                  Icon(
+                    Icons.check_circle,
+                    color: isLengthValid ? Colors.green : Colors.grey,
+                  ),
                   SizedBox(width: 8),
                   Text('Au minimum 6 caractères'),
                 ],
               ),
               Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.grey),
+                  Icon(
+                    Icons.check_circle,
+                    color: hasLetter ? Colors.green : Colors.grey,
+                  ),
                   SizedBox(width: 8),
                   Text('Contenir un caractère ASCII et un chiffre'),
                 ],
@@ -102,7 +252,16 @@ class SignupView extends StatelessWidget {
                 text: "S'inscrire",
                 onPressed: () {
                   // run signup function here to let user in before going to succes page
-                  Get.toNamed('/succes_reg');
+                  _handleRegister(
+                    context,
+                    firstNameController.text,
+                    lastNameController.text,
+                    phoneController.text,
+                    emailController.text,
+                    passwordController.text,
+                    confirmPasswordController.text,
+                  );
+                  // Get.toNamed('/succes_reg');
                 },
               ),
               const SizedBox(height: 20),

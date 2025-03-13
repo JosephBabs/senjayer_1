@@ -47,6 +47,8 @@ class _EventsViewState extends State<EventsView> {
                   "assets/logo.png", // Default image if missing
               "title": event["name"] ?? "No Title",
               "location": event["event_address"] ?? "Unknown Location",
+              "latitude": event["latitude"] ?? '29379907',
+              "longitude": event["longitude"] ?? '29379907',
               "dateTime": _formatDate(
                 event["start_date"],
                 event["end_date"],
@@ -203,7 +205,7 @@ class _EventsViewState extends State<EventsView> {
                             arguments: invitation,
                           );
                         },
-                        child: InvitationCard(
+                        child: EventCard(
                           evimage: invitation["image"]!,
                           title: invitation["title"]!,
                           location: invitation["location"]!,
@@ -221,6 +223,11 @@ class _EventsViewState extends State<EventsView> {
         ),
       ),
       bottomNavigationBar: buildBottomNavigation(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {Get.toNamed("/user_events_create")},
+        child: Icon(Icons.add), // Icon for the FAB
+        tooltip: 'Add Event', // Tooltip when hovering or long pressing
+      ),
     );
   }
 }

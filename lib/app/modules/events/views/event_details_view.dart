@@ -361,7 +361,7 @@ class EventDetailsView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "BIIC",
+                          invitation["location"]!,
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 18,

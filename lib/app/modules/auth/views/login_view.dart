@@ -33,11 +33,13 @@ class LoginView extends StatelessWidget {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Erreur!, ${result["errors"]}."),
+          content: Text(
+            "Erreur!, ${result["error_details"]["errors"]["message"]}.",
+          ),
           backgroundColor: Colors.red,
         ),
       );
-      print("Login failed: ${result["errors"]["message"]}");
+      print("Login failed: ${result["error_details"]["errors"]["message"]}");
     }
   }
 

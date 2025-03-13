@@ -9,6 +9,8 @@ import 'package:senjayer/widgets/custom_textfield.dart';
 class WelcomePageView extends StatelessWidget {
   // final email_controller = TextEditingController();
 
+  
+  final Map<String, dynamic> user = Get.arguments;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +33,7 @@ class WelcomePageView extends StatelessWidget {
                     "Bonjour, ",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
                   ),
-                  TitleText_1(text: "Harold ADJAHO"),
+                  TitleText_1(text: "${user['firstName'].toString()} ${user['lastName'].toString()}" ),
                 ],
               ),
 

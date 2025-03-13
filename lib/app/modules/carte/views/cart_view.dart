@@ -20,9 +20,11 @@ class _InvitationDetailsPageState extends State<CartView> {
 
   @override
   Widget build(BuildContext context) {
+    // final LatLng _location = LatLng(6.3755361, 2.4117988);
+
     final LatLng _location = LatLng(
-      invitation['latitude']!,
-      invitation['longitude']!,
+      double.parse(invitation['latitude']!),
+      double.parse(invitation['longitude']!),
     );
 
     return Scaffold(
@@ -44,6 +46,8 @@ class _InvitationDetailsPageState extends State<CartView> {
                   target: _location,
                   zoom: 14.0,
                 ),
+                mapType: MapType.normal,
+                liteModeEnabled: false,
                 markers: {
                   Marker(
                     markerId: MarkerId('event_location'),

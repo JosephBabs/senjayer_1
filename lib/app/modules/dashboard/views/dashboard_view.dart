@@ -104,7 +104,6 @@ class _DashboardViewState extends State {
     });
   }
 
-
   Future<void> _loadUserEvents() async {
     ApiService apiService = ApiService();
     var eventsResponse = await apiService.getUsersEventsData();
@@ -366,29 +365,46 @@ class _DashboardViewState extends State {
               // Date
               SizedBox(height: 40),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    dateParts[0],
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black, // First color
+              Padding(
+                padding: const EdgeInsets.all(0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // First text widget
+                    Expanded(
+                      child: Text(
+                        dateParts[0],
+                        style: TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        ),
+                        overflow:
+                            TextOverflow
+                                .ellipsis, // Ensures overflow handling for the first text
+                        maxLines: 1, // Limit to one line
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    "${dayParts[0]} ${dayParts[1]} ${dayParts[2]}",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.purple, // Second color
-                    ),
-                  ),
-                ],
-              ),
+                    SizedBox(width: 1),
+                    // Second text widget
+                    Expanded(
+                      child: Text(
+                        "${dayParts[0]} ${dayParts[1]} ${dayParts[2]}",
+                        softWrap: true,
 
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.purple,
+                        ),
+                        maxLines: 1,
+                        // overflow: TextOverflow.ellipsis, // Handles overflow
+                        // Ensure the text is contained to a single line
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -514,9 +530,7 @@ class _DashboardViewState extends State {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () => {
-                      Get.toNamed("/user_events")
-                    },
+                    onTap: () => {Get.toNamed("/user_events")},
                     child: Container(
                       padding: EdgeInsets.all(16),
                       width: MediaQuery.of(context).size.width * 0.42,

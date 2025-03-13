@@ -7,6 +7,8 @@ import 'package:senjayer/app/modules/auth/views/pass_reset_view.dart';
 import 'package:senjayer/app/modules/auth/views/signup_view.dart';
 import 'package:senjayer/app/modules/carte/views/cart_view.dart';
 import 'package:senjayer/app/modules/dashboard/views/dashboard_view.dart';
+import 'package:senjayer/app/modules/events/views/create_event_view.dart';
+import 'package:senjayer/app/modules/events/views/event_details_view.dart';
 import 'package:senjayer/app/modules/events/views/events_view.dart';
 import 'package:senjayer/app/modules/invitations/views/invitation_details.dart';
 import 'package:senjayer/app/modules/invitations/views/invitation_view.dart';
@@ -150,6 +152,26 @@ class AppPages {
     GetPage(
       name: AppRoutes.USER_EVENTS,
       page: () => EventsView(),
+
+      // binding: HomeBinding(),
+      transition: Transition.fadeIn, // Smooth fade-in transition
+      transitionDuration: Duration(milliseconds: 800),
+    ),
+
+
+    GetPage(
+      name: AppRoutes.USER_EVENTS_details,
+      page: () => EventDetailsView(),
+
+      // binding: HomeBinding(),
+      transition: Transition.fadeIn, // Smooth fade-in transition
+      transitionDuration: Duration(milliseconds: 800),
+    ),
+
+
+    GetPage(
+      name: AppRoutes.USER_EVENTS_CREATE,
+      page: () => CreateEventView(),
 
       // binding: HomeBinding(),
       transition: Transition.fadeIn, // Smooth fade-in transition

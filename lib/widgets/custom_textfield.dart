@@ -32,7 +32,6 @@ class TitleText_2 extends StatelessWidget {
   }
 }
 
-
 class MenuTexts extends StatelessWidget {
   final String text;
 
@@ -49,12 +48,12 @@ class MenuTexts extends StatelessWidget {
   }
 }
 
-
 class CustomTextField extends StatefulWidget {
   final String labelText;
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
+  final Function(String)? onChange;
   final TextInputType inputType;
 
   const CustomTextField({
@@ -64,6 +63,7 @@ class CustomTextField extends StatefulWidget {
     this.hintText = "",
     this.isPassword = false,
     this.inputType = TextInputType.text,
+    this.onChange,
   }) : super(key: key);
 
   @override
@@ -73,20 +73,33 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscureText = true;
 
+  String? errorText;
+
   @override
   void initState() {
     super.initState();
     _obscureText = widget.isPassword;
   }
 
-  String? _validateInput(String value) {
+  _validateInput(String value) {
+    String? validationMessage;
     if (widget.inputType == TextInputType.emailAddress) {
       final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
       if (!emailRegex.hasMatch(value)) {
-        return "Enter a valid email address";
+        validationMessage = "Entrez une adresse e-mail valide";
+      }
+    } else if (widget.isPassword) {
+      if (value.length < 8) {
+        validationMessage = "Au moins 8 caractères requis";
+      } else if (!RegExp(r'[0-9]').hasMatch(value)) {
+        validationMessage = "Inclure au moins un chiffre";
+      } else if (!RegExp(r'[A-Za-z]').hasMatch(value)) {
+        validationMessage = "Inclure au moins une lettre";
       }
     }
-    return null;
+    setState(() {
+      errorText = validationMessage;
+    });
   }
 
   @override
@@ -96,20 +109,32 @@ class _CustomTextFieldState extends State<CustomTextField> {
       obscureText: widget.isPassword ? _obscureText : false,
       keyboardType: widget.inputType,
       validator: (value) => value != null ? _validateInput(value) : null,
+      onChanged:
+          (value) => {
+            _validateInput(value), // Validate on each input
+            if (widget.onChange != null)
+              {
+                widget.onChange!(value), // Call external callback if provided
+              },
+          },
       decoration: InputDecoration(
         labelText: widget.labelText,
         hintText: widget.hintText,
+        errorText: errorText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
-            : null,
+        suffixIcon:
+            widget.isPassword
+                ? IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                )
+                : null,
       ),
     );
   }

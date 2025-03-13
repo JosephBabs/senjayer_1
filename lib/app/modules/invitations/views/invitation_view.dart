@@ -47,6 +47,8 @@ class _InvitationViewState extends State<InvitationView> {
                   "assets/default.png", // Default image if missing
               "title": event["name"] ?? "No Title",
               "location": event["event_address"] ?? "Unknown Location",
+              "latitude": event["latitude"] ?? '29379907',
+              "longitude": event["longitude"] ?? '29379907',
               "dateTime": _formatDate(
                 event["start_date"],
                 event["end_date"],

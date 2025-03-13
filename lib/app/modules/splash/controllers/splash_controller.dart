@@ -11,7 +11,7 @@ class SplashController extends GetxController {
   }
 
   void _checkFirstTimeUser() async {
-    await Future.delayed(Duration(seconds: 10)); // Simulate loading
+    await Future.delayed(Duration(seconds: 4)); // Simulate loading
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('first_time') ?? true;
@@ -20,7 +20,7 @@ class SplashController extends GetxController {
       Get.offAllNamed(AppRoutes.ONBOARDING);
     } else {
       // Get.offAllNamed(AppRoutes.ONBOARDING);
-      
+
       // _checkUserLoginStatus();
       _checkUserLoginStatus();
       // Get.offAllNamed(AppRoutes.LOGIN);

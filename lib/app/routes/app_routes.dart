@@ -17,5 +17,6 @@ abstract class AppRoutes {
   static const INVITATION_DETAIL_CARTE = '/invitation_detail_carte';
   static const USER_EVENTS = '/user_events';
   static const USER_EVENTS_details = '/user_events_details';
+  static const USER_EVENTS_CREATE = '/user_events_create';
   // user_events
 }
