@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:senjayer/api/api_services.dart';
+import 'package:senjayer/app/services/loaderServices.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 
@@ -70,6 +71,8 @@ class _SignupViewState extends State<SignupView> {
     String confirmPass,
   ) async {
     ApiService apiService = ApiService();
+    GetLoaderAction().showLoader();
+
     var result = await apiService.register(
       firstName,
       lastName,
@@ -81,11 +84,11 @@ class _SignupViewState extends State<SignupView> {
     // var result = await apiService.login("user@example.com", "password123");
 
     if (result["success"]) {
+    GetLoaderAction().closeLoader();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Inscription réussi!, ${result['data']["user"]["firstName"]} ${result['data']["user"]["lastName"]}.",
-          ),
+          content: Text("Inscription réussi!}."),
           backgroundColor: Colors.green,
         ),
       );
@@ -94,6 +97,8 @@ class _SignupViewState extends State<SignupView> {
       // Get.toNamed("/dashboard");
       Get.toNamed("/succes_reg");
     } else {
+    GetLoaderAction().closeLoader();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Erreur!, ${result["error_details"]["errors"]}."),

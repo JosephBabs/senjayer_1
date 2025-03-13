@@ -14,7 +14,7 @@ class ApiService {
   // static const String registerUrl = "$baseUrl/auth/register";
 
   final Dio _dio = Dio();
-
+  // login
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       Response response = await _dio.post(
@@ -72,6 +72,88 @@ class ApiService {
     }
   }
 
+  // forgot password
+  // Forgot Password Request (Takes only email)
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    try {
+      Response response = await _dio.post(
+        ApiRoutes.forgotPassword,
+        data: {"email": email},
+      );
+
+      if (response.statusCode == 200) {
+        return {
+          "success": true,
+          "message": "Password reset link sent to email",
+          "data": response.data,
+        };
+      } else {
+        return {
+          "success": false,
+          "message": response.data["message"] ?? "Something went wrong",
+        };
+      }
+    } catch (e) {
+      return _handleDioError(e);
+    }
+  }
+
+  // Reset Password Request (Takes password and confirmPassword)
+  Future<Map<String, dynamic>> resetPassword(
+    String email,
+    String password,
+    String confirmPassword,
+    String token,
+    String otp,
+  ) async {
+    try {
+      if (password != confirmPassword) {
+        return {"success": false, "message": "Passwords do not match"};
+      }
+
+      Response response = await _dio.post(
+        ApiRoutes.resetPassword,
+        data: {
+          "password": password,
+          "password_confirmation": confirmPassword,
+          "email": email,
+          "reset_code": otp,
+          "token": token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return {"success": true, "message": "Password reset successful"};
+      } else {
+        return {
+          "success": false,
+          "message": response.data["message"] ?? "Something went wrong",
+        };
+      }
+    } catch (e) {
+      return _handleDioError(e);
+    }
+  }
+
+  // Handles Dio Errors and Network Failures
+  Map<String, dynamic> _handleDioError(dynamic e) {
+    if (e is DioException) {
+      if (e.response != null) {
+        return {
+          "success": false,
+          "message": e.response?.data["message"] ?? "Request failed",
+          "error_details": e.response?.data,
+        };
+      } else {
+        return {"success": false, "message": "Network error: ${e.message}"};
+      }
+    }
+    return {"success": false, "message": "Unexpected error: $e"};
+  }
+
+  // reset password
+
+  // register
   Future<Map<String, dynamic>> register(
     String firstName,
     String lastName,
@@ -94,7 +176,7 @@ class ApiService {
           "lastName": lastName,
           "phone": phone,
           "email": email,
-          "role_id": "1", // Add other fields if necessary
+          "role_id": "2", // Add other fields if necessary
           "password": password,
           "password_confirmation": passwordConfirmation,
         },
@@ -158,12 +240,14 @@ class ApiService {
     }
   }
 
+  // save user data
   Future<void> _saveUserData(String token, Map<String, dynamic> user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString("token", token);
     await prefs.setString("user", jsonEncode(user));
   }
 
+  // get userdate
   Future<Map<String, dynamic>?> getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userData = prefs.getString("user");
@@ -178,6 +262,7 @@ class ApiService {
     return null;
   }
 
+  // getinivted event
   Future<Map<String, dynamic>?> getEventsData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
@@ -209,6 +294,7 @@ class ApiService {
     }
   }
 
+  // get user events
   Future<Map<String, dynamic>?> getUsersEventsData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
@@ -240,6 +326,7 @@ class ApiService {
     }
   }
 
+  // get categories
   Future<Map<String, dynamic>?> getEventsCategories() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
@@ -271,6 +358,7 @@ class ApiService {
     }
   }
 
+  // create events
   Future<Map<String, dynamic>?> createEvent({
     required String name,
     required String description,

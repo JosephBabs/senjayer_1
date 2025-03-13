@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:senjayer/api/api_services.dart';
@@ -8,6 +9,8 @@ import 'package:senjayer/app/modules/auth/views/login_view.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 import 'package:intl/intl.dart';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardView extends StatefulWidget {
@@ -229,33 +232,95 @@ class _DashboardViewState extends State {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(height: 60),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // header section user infos
-                  GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            title: Text("Compte"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
+      body: PopScope(
+        canPop: false, // Prevents back navigation
+        onPopInvoked: (didPop) {
+          if (didPop) return; // If another pop is invoked, do nothing
+
+          // Show exit confirmation dialog
+          Get.defaultDialog(
+            title: "Quiter l'application",
+            middleText: "Voulez-vous vraiment quitter l'application?",
+            textConfirm: "Oui",
+            textCancel: "Non",
+            onConfirm: () {
+              if (Platform.isAndroid) {
+                SystemNavigator.pop(); // Close app on Android
+              } else {
+                exit(0); // Close app on iOS
+              }
+            },
+          );
+        },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(height: 60),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                title: Text("Compte"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Image.asset("assets/user.png", width: 70),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'Salut',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w200,
+                                      ),
+                                    ),
+                                    Text(
+                                      userName,
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    SizedBox(height: 20),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        logout();
+                                        // Close the dialog
+                                        // Handle logout logic here
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: Text("Se déconnecter"),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Image.asset("assets/user.png", width: 60),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Image.asset("assets/user.png", width: 70),
-                                SizedBox(height: 10),
                                 Text(
                                   'Salut',
                                   style: TextStyle(
@@ -263,155 +328,304 @@ class _DashboardViewState extends State {
                                     fontWeight: FontWeight.w200,
                                   ),
                                 ),
-                                Text(
-                                  userName,
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.w700,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 2,
                                   ),
-                                ),
-                                SizedBox(height: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    logout();
-                                    // Close the dialog
-                                    // Handle logout logic here
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
+                                  child: Text(
+                                    userName,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                  child: Text("Se déconnecter"),
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        Image.asset("assets/user.png", width: 70),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Salut',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            Text(
-                              userName,
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () => {},
-                        child: Icon(Icons.search, color: Colors.grey, size: 30),
                       ),
+
                       SizedBox(width: 10),
-                      InkWell(
-                        onTap: () => {},
-                        child: Stack(
-                          alignment: Alignment.topRight,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.purple.shade100,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.notifications,
-                                color: Colors.black,
-                                size: 24,
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          InkWell(
+                            onTap: () => {},
+                            child: Icon(
+                              Icons.search,
+                              color: Colors.grey,
+                              size: 30,
                             ),
-                            Positioned(
-                              top: 8,
-                              right: 10,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
+                          ),
+                          SizedBox(width: 10),
+                          InkWell(
+                            onTap: () => {},
+                            child: Stack(
+                              alignment: Alignment.topRight,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple.shade100,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.notifications,
+                                    color: Colors.black,
+                                    size: 24,
+                                  ),
                                 ),
-                              ),
+                                Positioned(
+                                  top: 8,
+                                  right: 10,
+                                  child: Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Date
+                SizedBox(height: 40),
+
+                Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // First text widget
+                      Expanded(
+                        child: Text(
+                          dateParts[0],
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                          overflow:
+                              TextOverflow
+                                  .ellipsis, // Ensures overflow handling for the first text
+                          maxLines: 1, // Limit to one line
+                        ),
+                      ),
+                      SizedBox(width: 1),
+                      // Second text widget
+                      Expanded(
+                        child: Text(
+                          "${dayParts[0]} ${dayParts[1]} ${dayParts[2]}",
+                          softWrap: true,
+
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.purple,
+                          ),
+                          maxLines: 1,
+                          // overflow: TextOverflow.ellipsis, // Handles overflow
+                          // Ensure the text is contained to a single line
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-
-              // Date
-              SizedBox(height: 40),
-
-              Padding(
-                padding: const EdgeInsets.all(0.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // First text widget
-                    Expanded(
-                      child: Text(
-                        dateParts[0],
-                        style: TextStyle(
-                          fontSize: 23,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                    GestureDetector(
+                      onTap: () => {Get.toNamed('/invitations')},
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        width: MediaQuery.of(context).size.width * 0.42,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(width: 1, color: Colors.black26),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 15,
+                              spreadRadius: 5,
+                            ),
+                          ],
                         ),
-                        overflow:
-                            TextOverflow
-                                .ellipsis, // Ensures overflow handling for the first text
-                        maxLines: 1, // Limit to one line
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Invitations Reçues",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              // , // Ensures text doesn't get cut off
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "$inviteCount invitations reçues",
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.purple,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                            SizedBox(height: 15),
+                            Container(
+                              // Ensures full width
+                              child: Align(
+                                alignment:
+                                    Alignment
+                                        .centerRight, // Moves the image to the right
+                                child: Image.asset(
+                                  "assets/invitation_icon.png", // Replace with your asset path
+                                  width: 60,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    SizedBox(width: 1),
-                    // Second text widget
-                    Expanded(
-                      child: Text(
-                        "${dayParts[0]} ${dayParts[1]} ${dayParts[2]}",
-                        softWrap: true,
 
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.purple,
-                        ),
-                        maxLines: 1,
-                        // overflow: TextOverflow.ellipsis, // Handles overflow
-                        // Ensure the text is contained to a single line
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      width: MediaQuery.of(context).size.width * 0.42,
+                      decoration: BoxDecoration(
+                        color: appTheme.appViolet,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(width: 1, color: Colors.black26),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 15,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Invitations Envoyées",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                            ),
+                            // , // Ensures text doesn't get cut off
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            "110 invitations envoyées...",
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w500,
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                            ),
+                            softWrap: true,
+                            overflow: TextOverflow.visible,
+                          ),
+                          SizedBox(height: 15),
+                          Container(
+                            // Ensures full width
+                            child: Align(
+                              alignment:
+                                  Alignment
+                                      .centerRight, // Moves the image to the right
+                              child: Image.asset(
+                                "assets/invite_send.png", // Replace with your asset path
+                                width: 60,
+                                height: 60,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => {Get.toNamed('/invitations')},
-                    child: Container(
+
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () => {Get.toNamed("/user_events")},
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        width: MediaQuery.of(context).size.width * 0.42,
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 17, 2, 33),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(width: 1, color: Colors.black26),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 15,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Évènements",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              // , // Ensures text doesn't get cut off
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "$eventCount évènements ",
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w500,
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                            SizedBox(height: 15),
+                            Container(
+                              // Ensures full width
+                              child: Align(
+                                alignment:
+                                    Alignment
+                                        .centerRight, // Moves the image to the right
+                                child: Image.asset(
+                                  "assets/contacts_icon.png", // Replace with your asset path
+                                  width: 60,
+                                  height: 60,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    Container(
                       padding: EdgeInsets.all(16),
                       width: MediaQuery.of(context).size.width * 0.42,
                       decoration: BoxDecoration(
@@ -430,7 +644,7 @@ class _DashboardViewState extends State {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Invitations Reçues",
+                            "Mon profil",
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -440,11 +654,11 @@ class _DashboardViewState extends State {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "$inviteCount invitations reçues",
+                            "Voir mon profil",
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w500,
-                              color: Colors.purple,
+                              color: const Color.fromARGB(255, 20, 20, 20),
                             ),
                             softWrap: true,
                             overflow: TextOverflow.visible,
@@ -457,7 +671,7 @@ class _DashboardViewState extends State {
                                   Alignment
                                       .centerRight, // Moves the image to the right
                               child: Image.asset(
-                                "assets/invitation_icon.png", // Replace with your asset path
+                                "assets/user_icon.png", // Replace with your asset path
                                 width: 60,
                               ),
                             ),
@@ -465,79 +679,47 @@ class _DashboardViewState extends State {
                         ],
                       ),
                     ),
-                  ),
+                  ],
+                ),
 
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    width: MediaQuery.of(context).size.width * 0.42,
-                    decoration: BoxDecoration(
-                      color: appTheme.appViolet,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(width: 1, color: Colors.black26),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 15,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    Column(
                       children: [
                         Text(
-                          "Invitations Envoyées",
+                          "Offres partenaires :",
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 19,
                             fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 255, 255, 255),
+                            color: Colors.black,
                           ),
-                          // , // Ensures text doesn't get cut off
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          "110 invitations envoyées...",
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                          ),
+                          textAlign: TextAlign.left,
                           softWrap: true,
-                          overflow: TextOverflow.visible,
                         ),
-                        SizedBox(height: 15),
                         Container(
-                          // Ensures full width
-                          child: Align(
-                            alignment:
-                                Alignment
-                                    .centerRight, // Moves the image to the right
-                            child: Image.asset(
-                              "assets/invite_send.png", // Replace with your asset path
-                              width: 60,
-                              height: 60,
-                            ),
-                          ),
+                          height: 4,
+                          width:
+                              MediaQuery.of(context).size.width *
+                              0.5, // Adjust thickness of the underline
+                          color: appTheme.appViolet,
+                          // padding: EdgeInsets.all(1), // Underline color
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => {Get.toNamed("/user_events")},
+                SizedBox(height: 20),
+                InkWell(
+                  onTap: () => {},
+                  child: Center(
                     child: Container(
-                      padding: EdgeInsets.all(16),
-                      width: MediaQuery.of(context).size.width * 0.42,
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: MediaQuery.of(context).size.height * 0.2,
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 17, 2, 33),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(width: 1, color: Colors.black26),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black12,
@@ -545,164 +727,20 @@ class _DashboardViewState extends State {
                             spreadRadius: 5,
                           ),
                         ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Évènements",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                            ),
-                            // , // Ensures text doesn't get cut off
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            "$eventCount évènements ",
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w500,
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                            ),
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                          ),
-                          SizedBox(height: 15),
-                          Container(
-                            // Ensures full width
-                            child: Align(
-                              alignment:
-                                  Alignment
-                                      .centerRight, // Moves the image to the right
-                              child: Image.asset(
-                                "assets/contacts_icon.png", // Replace with your asset path
-                                width: 60,
-                                height: 60,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    width: MediaQuery.of(context).size.width * 0.42,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(width: 1, color: Colors.black26),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 15,
-                          spreadRadius: 5,
+                        image: DecorationImage(
+                          image: AssetImage("assets/bg.jpg"),
+                          fit: BoxFit.fill,
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Mon profil",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          // , // Ensures text doesn't get cut off
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          "Voir mon profil",
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w500,
-                            color: const Color.fromARGB(255, 20, 20, 20),
-                          ),
-                          softWrap: true,
-                          overflow: TextOverflow.visible,
-                        ),
-                        SizedBox(height: 15),
-                        Container(
-                          // Ensures full width
-                          child: Align(
-                            alignment:
-                                Alignment
-                                    .centerRight, // Moves the image to the right
-                            child: Image.asset(
-                              "assets/user_icon.png", // Replace with your asset path
-                              width: 60,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        "Offres partenaires :",
-                        style: TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        textAlign: TextAlign.left,
-                        softWrap: true,
-                      ),
-                      Container(
-                        height: 4,
-                        width:
-                            MediaQuery.of(context).size.width *
-                            0.5, // Adjust thickness of the underline
-                        color: appTheme.appViolet,
-                        // padding: EdgeInsets.all(1), // Underline color
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-              InkWell(
-                onTap: () => {},
-                child: Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 15,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                      image: DecorationImage(
-                        image: AssetImage("assets/bg.jpg"),
-                        fit: BoxFit.fill,
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 120),
+                const SizedBox(height: 30),
 
-              // Logo
-            ],
+                // Logo
+              ],
+            ),
           ),
         ),
       ),

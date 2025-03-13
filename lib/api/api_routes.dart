@@ -5,6 +5,8 @@ class ApiRoutes {
   static const String loginUrl = "$baseUrl/auth/login";
   static const String registerUrl = "$baseUrl/auth/register";
   static const String logoutUrl = "$baseUrl/auth/logout";
+  static const String forgotPassword = "$baseUrl/auth/forgot-password";
+  static const String resetPassword = "$baseUrl/auth/reset-password";
 
   // User
   static const String getUserProfile = "$baseUrl/user/profile";

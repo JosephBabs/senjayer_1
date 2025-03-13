@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart'; // For image picking
 import 'package:google_maps_flutter/google_maps_flutter.dart'; // Google Map
 import 'package:intl/intl.dart';
 import 'package:senjayer/api/api_services.dart';
+import 'package:senjayer/app/services/loaderServices.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -177,6 +178,7 @@ class _CreateEventPageState extends State<CreateEventView> {
       );
       return;
     }
+    GetLoaderAction().showLoader();
 
     // Send request to create event
     var result = await apiService.createEvent(
@@ -187,7 +189,7 @@ class _CreateEventPageState extends State<CreateEventView> {
       addressLatitude: latitude!,
       imageUrl: imageUrl!, // Pass the file instead of a string
       categoryId: selectedCategoryId!,
-      private: 0, // Set default private value (adjust as needed)
+      private: 1, // Set default private value (adjust as needed)
       userId: userId, // Use stored user ID
       startDate: startDate!.toIso8601String(),
       endDate: endDate!.toIso8601String(),
@@ -200,6 +202,7 @@ class _CreateEventPageState extends State<CreateEventView> {
 
     // Handle response
     if (result?["success"]) {
+      GetLoaderAction().closeLoader();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Événement créé avec succès!"),
@@ -210,6 +213,7 @@ class _CreateEventPageState extends State<CreateEventView> {
       // Navigate to event list or dashboard
       Get.toNamed("/user_events");
     } else {
+      GetLoaderAction().closeLoader();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -416,11 +420,26 @@ class _CreateEventPageState extends State<CreateEventView> {
                             style: TextStyle(fontSize: 16),
                           ),
 
-                          TextButton(
-                            onPressed: () => _selectDate(context, 'startDate'),
-                            child: Text(
-                              _formatDate(startDate) ?? 'Sélectionner',
-                              style: TextStyle(fontSize: 16),
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 1,
+                                color: Colors.black38,
+                              ),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(30),
+                              ),
+                            ),
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed:
+                                  () => _selectDate(context, 'startDate'),
+                              child: Text(
+                                _formatDate(startDate) ?? 'Sélectionner',
+                                style: TextStyle(fontSize: 16),
+                              ),
                             ),
                           ),
                         ],
@@ -438,11 +457,20 @@ class _CreateEventPageState extends State<CreateEventView> {
                         style: TextStyle(fontSize: 16),
                       ),
                       SizedBox(width: 10),
-                      TextButton(
-                        onPressed: () => _selectDate(context, 'endDate'),
-                        child: Text(
-                          _formatDate(endDate) ?? 'Sélectionner',
-                          style: TextStyle(fontSize: 16),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: Colors.black38),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                        ),
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () => _selectDate(context, 'endDate'),
+                          child: Text(
+                            _formatDate(endDate) ?? 'Sélectionner',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ],
@@ -458,11 +486,20 @@ class _CreateEventPageState extends State<CreateEventView> {
                         style: TextStyle(fontSize: 16),
                       ),
                       SizedBox(width: 10),
-                      TextButton(
-                        onPressed: () => _selectDate(context, 'startTicket'),
-                        child: Text(
-                          _formatDate(startTicket) ?? 'Sélectionner',
-                          style: TextStyle(fontSize: 16),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: Colors.black38),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                        ),
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () => _selectDate(context, 'startTicket'),
+                          child: Text(
+                            _formatDate(startTicket) ?? 'Sélectionner',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ],
@@ -478,11 +515,20 @@ class _CreateEventPageState extends State<CreateEventView> {
                         style: TextStyle(fontSize: 16),
                       ),
                       SizedBox(width: 10),
-                      TextButton(
-                        onPressed: () => _selectDate(context, 'endTicket'),
-                        child: Text(
-                          _formatDate(endTicket) ?? 'Sélectionner',
-                          style: TextStyle(fontSize: 16),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: Colors.black38),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                        ),
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () => _selectDate(context, 'endTicket'),
+                          child: Text(
+                            _formatDate(endTicket) ?? 'Sélectionner',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ],

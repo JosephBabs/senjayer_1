@@ -6,10 +6,59 @@ import 'package:senjayer/app/core/theme.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 
-class PassResetOtpView extends StatelessWidget {
+class PassResetOtpView extends StatefulWidget {
+  @override
+  _PassResetOtpViewState createState() => _PassResetOtpViewState();
+}
+
+class _PassResetOtpViewState extends State<PassResetOtpView> {
   final email_controller = TextEditingController();
   final phone_controller = TextEditingController();
   final password_controller = TextEditingController();
+
+  final Map<String, dynamic> data = Get.arguments as Map<String, dynamic>;
+
+  final int otpLength = 5;
+  List<TextEditingController> controllers = [];
+  List<FocusNode> focusNodes = [];
+  String otpCode = "";
+
+  @override
+  void initState() {
+    super.initState();
+    controllers = List.generate(otpLength, (index) => TextEditingController());
+    focusNodes = List.generate(otpLength, (index) => FocusNode());
+  }
+
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    for (var node in focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
+
+  void _onChanged(String value, int index) {
+    if (value.isNotEmpty) {
+      // Move to the next field if available
+      if (index < otpLength - 1) {
+        FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+      }
+    } else {
+      // Move to the previous field on backspace
+      if (index > 0) {
+        FocusScope.of(context).requestFocus(focusNodes[index - 1]);
+      }
+    }
+
+    // Update the OTP value
+    setState(() {
+      otpCode = controllers.map((e) => e.text).join();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +98,7 @@ class PassResetOtpView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Un code a été envoyé à l’adresse mail : \n jy.**ouanvoedo@gmail.com',
+                  'Un code a été envoyé à l’adresse mail : \n ${data['email'].toString()}',
                   style: TextStyle(color: Colors.black54, fontSize: 15),
                   textAlign: TextAlign.center,
                   softWrap: true,
@@ -61,11 +110,13 @@ class PassResetOtpView extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(4, (index) {
+                  children: List.generate(otpLength, (index) {
                     return SizedBox(
-                      width: 60,
+                      width: 50,
                       child: TextField(
-                        keyboardType: TextInputType.number,
+                        controller: controllers[index],
+                        focusNode: focusNodes[index],
+                        keyboardType: TextInputType.text,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 20,
@@ -76,20 +127,24 @@ class PassResetOtpView extends StatelessWidget {
                           counterText: "",
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              width: 2, // Set thick border width
-                              color: appTheme.appViolet,
+                              width: 2,
+                              color:
+                                  appTheme
+                                      .appViolet, // Change as per your theme
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(8)),
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              width: 20,
-                              color: appTheme.appViolet,
+                              width: 2,
+                              color:
+                                  appTheme
+                                      .appViolet, // Change as per your theme
                             ),
-
                             borderRadius: BorderRadius.all(Radius.circular(8)),
                           ),
                         ),
+                        onChanged: (value) => _onChanged(value, index),
                       ),
                     );
                   }),
@@ -124,7 +179,10 @@ class PassResetOtpView extends StatelessWidget {
               MainButtons(
                 text: "Vérifier",
                 onPressed: () {
-                  Get.toNamed('/pass_reset');
+                  Get.toNamed(
+                    '/pass_reset',
+                    arguments: {"email": data["email"], "otp": otpCode, "token":data["token"]},
+                  );
                 },
               ),
               const SizedBox(height: 20),

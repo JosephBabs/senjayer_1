@@ -2,7 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:senjayer/api/api_services.dart';
 import 'package:senjayer/app/core/theme.dart';
+import 'package:senjayer/app/services/loaderServices.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 
@@ -10,6 +12,47 @@ class ForgotPassView extends StatelessWidget {
   final email_controller = TextEditingController();
   final phone_controller = TextEditingController();
   final password_controller = TextEditingController();
+
+  final Map<String, String> email = Get.arguments;
+  void _handleForgotPassword(BuildContext context, String emails) async {
+    ApiService apiService = ApiService();
+
+    GetLoaderAction().showLoader();
+    var result = await apiService.forgotPassword(emails);
+    print("Your data is: $emails");
+
+    if (result["success"]) {
+      GetLoaderAction().closeLoader();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Un mail otp vous a éte envoyé par votre adresse mail.",
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      var token = result["data"]["token"];
+
+      print(token);
+      // Navigate to Dashboard
+      Get.toNamed(
+        '/pass_otp',
+        arguments: {"email": email['email'].toString(), "token": token},
+      );
+    } else {
+      GetLoaderAction().closeLoader();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Erreur!, lors de l'envoi du mail de vérification."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      print("Login failed: ${result}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +129,9 @@ class ForgotPassView extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'jy.**ouanvoedo@gmail.com',
+                          email['email'] != null
+                              ? email['email'].toString()
+                              : 'Aucun mail saisi',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
@@ -102,7 +147,8 @@ class ForgotPassView extends StatelessWidget {
               MainButtons(
                 text: "Suivant",
                 onPressed: () {
-                  Get.toNamed('/pass_otp');
+                  _handleForgotPassword(context, email['email'].toString());
+                  // Get.toNamed('/pass_otp');
                 },
               ),
               const SizedBox(height: 20),

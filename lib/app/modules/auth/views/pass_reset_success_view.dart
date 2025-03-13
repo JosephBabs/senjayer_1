@@ -42,7 +42,7 @@ class PassResetSuccessView extends StatelessWidget {
               MainButtons(
                 text: "Retour à l'accueil",
                 onPressed: () {
-                  Get.toNamed('/welcome_page');
+                  Get.toNamed('/login');
                 },
               ),
               const SizedBox(height: 20),

@@ -103,13 +103,24 @@ class EventDetailsView extends StatelessWidget {
           padding: EdgeInsets.all(0),
           child: Column(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  invitation['image']!,
-                  width: MediaQuery.of(context).size.width * 1,
-                  height: 300,
-                  fit: BoxFit.cover,
+              Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 15,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    invitation['image']!,
+                    width: MediaQuery.of(context).size.width * 1,
+                    height: 340,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               SizedBox(height: 0),
@@ -142,11 +153,16 @@ class EventDetailsView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Text(
-                      invitation["title"]!,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
+                    Expanded(
+                      // ⬅️ Allows text to wrap instead of overflowing
+                      child: Text(
+                        invitation["title"]!,
+                        softWrap: true,
+                        maxLines: null, // ⬅️ Allows multiple lines
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ],

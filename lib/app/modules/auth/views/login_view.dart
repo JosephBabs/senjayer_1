@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:senjayer/api/api_services.dart';
+import 'package:senjayer/app/services/loaderServices.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 import 'package:senjayer/app/modules/auth/controllers/login_controller.dart';
@@ -14,32 +15,44 @@ class LoginView extends StatelessWidget {
 
   void _handleLogin(BuildContext context, String Email, String Password) async {
     ApiService apiService = ApiService();
-    var result = await apiService.login(Email, Password);
-    // var result = await apiService.login("user@example.com", "password123");
 
-    if (result["success"]) {
+    if (Email.isEmpty || Password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Connexion réussi!, ${result["user"]["firstName"]} ${result["user"]["lastName"]}.",
-          ),
-          backgroundColor: Colors.green,
+          content: Text("Veuillez remplir les champs"),
+          backgroundColor: const Color.fromARGB(255, 216, 132, 6),
         ),
       );
-
-      // Navigate to Dashboard
-      // Get.toNamed("/dashboard");
-      Get.toNamed("/dashboard");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Erreur!, ${result["error_details"]["errors"]["message"]}.",
+      GetLoaderAction().showLoader();
+      var result = await apiService.login(Email, Password);
+      // var result = await apiService.login("user@example.com", "password123");
+
+      if (result["success"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Connexion réussi!, ${result["user"]["firstName"]} ${result["user"]["lastName"]}.",
+            ),
+            backgroundColor: Colors.green,
           ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      print("Login failed: ${result["error_details"]["errors"]["message"]}");
+        );
+
+        // Navigate to Dashboard
+        // Get.toNamed("/dashboard");
+        Get.toNamed("/dashboard");
+      } else {
+        GetLoaderAction().closeLoader();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erreur!, ${result["error_details"]["errors"]["message"]}.",
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        print("Login failed: ${result["error_details"]["errors"]["message"]}");
+      }
     }
   }
 
@@ -93,7 +106,24 @@ class LoginView extends StatelessWidget {
                       recognizer:
                           TapGestureRecognizer()
                             ..onTap = () {
-                              Get.toNamed('/forgot_pass');
+                              if (email_controller.text.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Veuillez entrer le mail"),
+                                    backgroundColor: const Color.fromARGB(
+                                      255,
+                                      216,
+                                      132,
+                                      6,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                Get.toNamed(
+                                  '/forgot_pass',
+                                  arguments: {"email": email_controller.text},
+                                );
+                              }
                             },
                     ),
                   ],

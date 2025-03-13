@@ -2,7 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:senjayer/api/api_services.dart';
 import 'package:senjayer/app/core/theme.dart';
+import 'package:senjayer/app/services/loaderServices.dart';
 import 'package:senjayer/widgets/custom_button.dart';
 import 'package:senjayer/widgets/custom_textfield.dart';
 
@@ -16,7 +18,61 @@ class PassResetViewState extends State<PassResetView> {
   final confirm_pass = TextEditingController();
   final password_controller = TextEditingController();
 
+  final Map<String, dynamic> data = Get.arguments as Map<String, dynamic>;
+
   bool isChecked = false;
+
+  void _handleResetPassword(
+    BuildContext context,
+    String email,
+    String password,
+    String passwordConfirm,
+    String token,
+    String otp,
+  ) async {
+    ApiService apiService = ApiService();
+    GetLoaderAction().showLoader();
+
+    var result = await apiService.resetPassword(
+      email,
+      password,
+      passwordConfirm,
+      token,
+      otp,
+    );
+    print("Your data is: $email");
+
+    if (result["success"]) {
+      GetLoaderAction().closeLoader();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Mot de passe mis à jour avec succès"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // var token = result["data"]["token"];
+
+      print(token);
+      // Navigate to Dashboard
+
+      Get.offAndToNamed('/pass_reset_success_otp');
+      // Get.offAll(
+      //   '/login',
+      // );
+    } else {
+      GetLoaderAction().closeLoader();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Erreur!, lors de l'envoi du mail de vérification."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      print("Login failed: ${result}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,11 +131,13 @@ class PassResetViewState extends State<PassResetView> {
                     CustomTextField(
                       labelText: "Mot de passe",
                       controller: password_controller,
+                      isPassword: true,
                     ),
                     const SizedBox(height: 30),
                     CustomTextField(
                       labelText: "Confirmer Mot de passe",
-                      controller: password_controller,
+                      controller: confirm_pass,
+                      isPassword: true,
                     ),
                   ],
                 ),
@@ -115,7 +173,14 @@ class PassResetViewState extends State<PassResetView> {
               MainButtons(
                 text: "Valider",
                 onPressed: () {
-                  Get.toNamed('/pass_reset_success_otp');
+                  _handleResetPassword(
+                    context,
+                    data["email"].toString(),
+                    password_controller.text,
+                    confirm_pass.text,
+                    data["token"].toString(),
+                    data["otp"].toString(),
+                  );
                 },
               ),
               const SizedBox(height: 20),

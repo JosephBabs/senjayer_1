@@ -26,6 +26,7 @@ class _EventsViewState extends State<EventsView> {
 
   Future<void> _loadUserEvents() async {
     ApiService apiService = ApiService();
+    
     var eventsResponse = await apiService.getUsersEventsData();
 
     if (eventsResponse == null || !(eventsResponse["success"] as bool)) {
